@@ -52,6 +52,7 @@ runs:
 
     - name: Generate self-signed certificates
       shell: bash
+      if: startsWith(inputs.os, 'ubuntu')
       run: |
         chmod +x ${{ github.action_path }}/generate-certs.sh
         ${{ github.action_path }}/generate-certs.sh
