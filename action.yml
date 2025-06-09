@@ -53,8 +53,8 @@ runs:
     - name: Generate self-signed certificates
       shell: bash
       run: |
-        chmod +x ./generate-certs.sh
-        ./generate-certs.sh
+        chmod +x ${{ github.action_path }}/generate-certs.sh
+        ${{ github.action_path }}/generate-certs.sh
 
     - name: Setup Node.js
       uses: actions/setup-node@v4
