@@ -1,0 +1,89 @@
+name: 'MariaDB Node.js Test Setup'
+description: 'Setup MariaDB/MySQL, Node.js, certificates, and dependencies for testing'
+inputs:
+  node-version:
+    description: 'Node.js version to use'
+    required: true
+  db-type:
+    description: 'Database type (community, enterprise, dev, mysql)'
+    required: true
+  db-tag:
+    description: 'Database version tag'
+    required: true
+  test-db-password:
+    description: 'Database root password'
+    required: true
+  test-db-database:
+    description: 'Test database name'
+    required: true
+  test-db-port:
+    description: 'Database port'
+    required: true
+    default: '3306'
+  additional-conf:
+    description: 'Additional database configuration'
+    required: false
+  registry-user:
+    description: 'Enterprise registry user'
+    required: false
+  registry-password:
+    description: 'Enterprise registry password'
+    required: false
+  os:
+    description: 'Operating system'
+    required: true
+
+outputs:
+  database-type:
+    description: 'Type of database that was setup'
+    value: ${{ steps.mariadb-install.outputs.database-type }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Add hosts entry
+      shell: bash
+      run: |
+        if [ "$RUNNER_OS" == "Windows" ]; then
+          echo "127.0.0.1 mariadb.example.com" >> /c/Windows/System32/drivers/etc/hosts
+        else
+          echo "127.0.0.1 mariadb.example.com" | sudo tee -a /etc/hosts
+        fi
+
+    - name: Generate self-signed certificates
+      shell: bash
+      run: |
+        chmod +x .github/workflows/generate-certs.sh
+        ./.github/workflows/generate-certs.sh
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ inputs.node-version }}
+
+    - name: Setup MariaDB
+      id: mariadb-install
+      if: inputs.db-type != 'mysql'
+      uses: rusher/action-setup-mariadb@master
+      with:
+        tag: ${{ inputs.db-tag }}
+        root-password: ${{ inputs.test-db-password }}
+        database: ${{ inputs.test-db-database }}
+        registry: ${{ inputs.db-type == 'enterprise' && 'docker.mariadb.com/enterprise-server' || (inputs.db-type == 'dev' && 'quay.io/mariadb-foundation/mariadb-devel' || '') }}
+        registry-user: ${{ inputs.registry-user }}
+        registry-password: ${{ inputs.registry-password }}
+        additional-conf: |
+          ${{ inputs.additional-conf }}
+          ${{ inputs.os == 'ubuntu-latest' && '--ssl-ca=/etc/mysql/conf.d/ca.crt' || '' }}
+          ${{ inputs.os == 'ubuntu-latest' && '--ssl-cert=/etc/mysql/conf.d/server.crt' || '' }}
+          ${{ inputs.os == 'ubuntu-latest' && '--ssl-key=/etc/mysql/conf.d/server.key' || '' }}
+        conf-script-folder: ${{ github.workspace }}/.github/workflows/certs
+        port: ${{ inputs.test-db-port }}
+
+    - name: Setup MySQL
+      if: inputs.db-type == 'mysql'
+      uses: mirromutth/mysql-action@v1.1
+      with:
+        mysql version: ${{ inputs.db-tag }}
+        mysql database: ${{ inputs.test-db-database }}
+        mysql root password: ${{ inputs.test-db-password }}
