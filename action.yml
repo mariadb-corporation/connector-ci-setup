@@ -75,9 +75,9 @@ runs:
         registry-password: ${{ inputs.registry-password }}
         additional-conf: |
           ${{ inputs.additional-conf }}
-          ${{ inputs.os == 'ubuntu-latest' && '--ssl-ca=/etc/mysql/conf.d/ca.crt' || '' }}
-          ${{ inputs.os == 'ubuntu-latest' && '--ssl-cert=/etc/mysql/conf.d/server.crt' || '' }}
-          ${{ inputs.os == 'ubuntu-latest' && '--ssl-key=/etc/mysql/conf.d/server.key' || '' }}
+          ${{ inputs.os == 'ubuntu-latest' && inputs.db-tag < '11.4' && '--ssl-ca=/etc/mysql/conf.d/ca.crt' || '' }}
+          ${{ inputs.os == 'ubuntu-latest' && inputs.db-tag < '11.4' && '--ssl-cert=/etc/mysql/conf.d/server.crt' || '' }}
+          ${{ inputs.os == 'ubuntu-latest' && inputs.db-tag < '11.4' && '--ssl-key=/etc/mysql/conf.d/server.key' || '' }}
         conf-script-folder: ${{ github.workspace }}/.github/workflows/certs
         port: ${{ inputs.test-db-port }}
 
