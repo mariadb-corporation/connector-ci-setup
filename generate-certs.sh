@@ -62,9 +62,12 @@ openssl req -new -key .github/workflows/certs/server.key -out .github/workflows/
 echo "Generate the certificate for the server:"
 openssl x509 -req -days 365 -in .github/workflows/certs/server.csr -out .github/workflows/certs/server.crt -CA .github/workflows/certs/ca.crt -CAkey .github/workflows/certs/ca.key -extensions req_ext -extfile .github/workflows/certs/server.conf
 
+sudo sh -c '.github/workflows/certs/ca.crt .github/workflows/certs/server.crt > .github/workflows/certs/ca_server.crt'
+
+
 # Set appropriate permissions
 chmod 600 .github/workflows/certs/ca.key
-chmod 644 .github/workflows/certs/server.crt .github/workflows/certs/ca.crt .github/workflows/certs/server.key
+chmod 644 .github/workflows/certs/server.crt .github/workflows/certs/ca.crt .github/workflows/certs/server.key .github/workflows/certs/ca_server.crt
 
 # List generated certificates
 echo "Generated certificates:"
