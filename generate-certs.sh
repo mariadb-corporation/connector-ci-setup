@@ -75,10 +75,10 @@ openssl req -new -key .github/workflows/certs/client.key -out .github/workflows/
 echo "Generate the certificate for the client:"
 openssl x509 -req -days 365 -in .github/workflows/certs/client.csr -out .github/workflows/certs/client.crt -CA .github/workflows/certs/ca.crt -CAkey .github/workflows/certs/ca.key -extensions req_ext -extfile .github/workflows/certs/server.conf
 
-echo "Creating symbolic link for client key..."
-ln -sf .github/workflows/certs/client.key .github/workflows/certs/client-key.pem
-ln -sf .github/workflows/certs/client.crt .github/workflows/certs/client-cert.pem
-ln -sf .github/workflows/certs/ca_server.crt .github/workflows/certs/cacert.pem
+echo "Creating symbolic links..."
+ln -sf client.key .github/workflows/certs/client-key.pem
+ln -sf client.crt .github/workflows/certs/client-cert.pem
+ln -sf ca_server.crt .github/workflows/certs/cacert.pem
 
 # Set appropriate permissions
 chmod 644 .github/workflows/certs/*
@@ -91,5 +91,7 @@ ls -la .github/workflows/certs/
 # Verify certificate
 echo "Certificate details:"
 openssl x509 -in .github/workflows/certs/server.crt -text -noout | grep -E "(Subject|CN)"
+
+ls -lrt .github/workflows/certs/
 
 echo "Certificate generation completed successfully!"
