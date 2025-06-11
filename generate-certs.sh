@@ -65,6 +65,8 @@ openssl x509 -req -days 365 -in .github/workflows/certs/server.csr -out .github/
 cat .github/workflows/certs/ca.crt .github/workflows/certs/server.crt > .github/workflows/certs/ca_server.crt
 openssl x509 -noout -fingerprint -sha1 -in .github/workflows/certs/server.crt > .github/workflows/certs/server-cert.sha1
 
+echo "Server certificate SHA1 fingerprint:"
+cat .github/workflows/certs/server-cert.sha1
 
 echo "Generating client private key..."
 openssl genrsa -out .github/workflows/certs/client.key 2048
