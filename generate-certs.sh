@@ -85,11 +85,11 @@ echo "Creating symbolic links..."
 ln -sf client.key .github/workflows/certs/client-key.pem
 ln -sf client.crt .github/workflows/certs/client-cert.pem
 ln -sf ca_server.crt .github/workflows/certs/cacert.pem
-ln -sf client-key-enc.pem .github/workflows/certs/client-encrypted.key
+ln -sf client-encrypted.key .github/workflows/certs/client-key-enc.pem
 
 # Set appropriate permissions
 chmod 644 .github/workflows/certs/*
-chmod 600 .github/workflows/certs/ca.key
+chmod 600 .github/workflows/certs/ca.key .github/workflows/certs/client.key .github/workflows/certs/client-encrypted.key
 
 # List generated certificates
 echo "Generated certificates:"
