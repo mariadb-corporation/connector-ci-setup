@@ -69,6 +69,9 @@ openssl x509 -noout -fingerprint -sha1 -in .github/workflows/certs/server.crt > 
 echo "Generating client private key..."
 openssl genrsa -out .github/workflows/certs/client.key 2048
 
+echo "Generating password-protected client private key..."
+openssl rsa -aes256 -in .github/workflows/certs/client.key -out .github/workflows/certs/client-encrypted.key -passout pass:qwerty
+
 echo "Generating client certificate signing request..."
 openssl req -new -key .github/workflows/certs/client.key -out .github/workflows/certs/client.csr --config .github/workflows/certs/server.conf
 
@@ -82,6 +85,7 @@ echo "Creating symbolic links..."
 ln -sf client.key .github/workflows/certs/client-key.pem
 ln -sf client.crt .github/workflows/certs/client-cert.pem
 ln -sf ca_server.crt .github/workflows/certs/cacert.pem
+ln -sf client-key-enc.pem .github/workflows/certs/client-encrypted.key
 
 # Set appropriate permissions
 chmod 644 .github/workflows/certs/*
