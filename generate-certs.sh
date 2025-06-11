@@ -63,7 +63,7 @@ echo "Generate the certificate for the server:"
 openssl x509 -req -days 365 -in .github/workflows/certs/server.csr -out .github/workflows/certs/server.crt -CA .github/workflows/certs/ca.crt -CAkey .github/workflows/certs/ca.key -extensions req_ext -extfile .github/workflows/certs/server.conf
 
 cat .github/workflows/certs/ca.crt .github/workflows/certs/server.crt > .github/workflows/certs/ca_server.crt
-openssl x509 -noout -fingerprint -sha1 -in server.crt > server-cert.sha1
+openssl x509 -noout -fingerprint -sha1 -in .github/workflows/certs/server.crt > server-cert.sha1
 
 
 echo "Generating client private key..."
