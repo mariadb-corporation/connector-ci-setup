@@ -63,11 +63,26 @@ echo "Generate the certificate for the server:"
 openssl x509 -req -days 365 -in .github/workflows/certs/server.csr -out .github/workflows/certs/server.crt -CA .github/workflows/certs/ca.crt -CAkey .github/workflows/certs/ca.key -extensions req_ext -extfile .github/workflows/certs/server.conf
 
 cat .github/workflows/certs/ca.crt .github/workflows/certs/server.crt > .github/workflows/certs/ca_server.crt
+openssl x509 -noout -fingerprint -sha1 -in server.crt > server-cert.sha1
 
+
+echo "Generating client private key..."
+openssl genrsa -out .github/workflows/certs/client.key 2048
+
+echo "Generating client certificate signing request..."
+openssl req -new -key .github/workflows/certs/client.key -out .github/workflows/certs/client.csr --config .github/workflows/certs/server.conf
+
+echo "Generate the certificate for the client:"
+openssl x509 -req -days 365 -in .github/workflows/certs/client.csr -out .github/workflows/certs/client.crt -CA .github/workflows/certs/ca.crt -CAkey .github/workflows/certs/ca.key -extensions req_ext -extfile .github/workflows/certs/server.conf
+
+echo "Creating symbolic link for client key..."
+ln -sf .github/workflows/certs/client.key .github/workflows/certs/client-key.pem
+ln -sf .github/workflows/certs/client.crt .github/workflows/certs/client-cert.pem
+ln -sf .github/workflows/certs/ca_server.crt .github/workflows/certs/cacert.pem
 
 # Set appropriate permissions
+chmod 644 .github/workflows/certs/*
 chmod 600 .github/workflows/certs/ca.key
-chmod 644 .github/workflows/certs/server.crt .github/workflows/certs/ca.crt .github/workflows/certs/server.key .github/workflows/certs/ca_server.crt
 
 # List generated certificates
 echo "Generated certificates:"
