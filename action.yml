@@ -52,7 +52,6 @@ runs:
 
     - name: Generate self-signed certificates
       shell: bash
-      if: startsWith(inputs.os, 'ubuntu')
       run: |
         chmod +x ${{ github.action_path }}/generate-certs.sh
         ${{ github.action_path }}/generate-certs.sh
@@ -75,9 +74,9 @@ runs:
         registry-password: ${{ inputs.registry-password }}
         additional-conf: |
           ${{ inputs.additional-conf }}
-          ${{ inputs.os == 'ubuntu-latest' && '--ssl-ca=/etc/mysql/conf.d/ca.crt' || '' }}
-          ${{ inputs.os == 'ubuntu-latest' && '--ssl-cert=/etc/mysql/conf.d/server.crt' || '' }}
-          ${{ inputs.os == 'ubuntu-latest' && '--ssl-key=/etc/mysql/conf.d/server.key' || '' }}
+          ${{ '--ssl-ca=/etc/mysql/conf.d/ca.crt'}}
+          ${{ '--ssl-cert=/etc/mysql/conf.d/server.crt'}}
+          ${{ '--ssl-key=/etc/mysql/conf.d/server.key'}}
         conf-script-folder: ${{ github.workspace }}/.github/workflows/certs
         port: ${{ inputs.test-db-port }}
 
