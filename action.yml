@@ -53,8 +53,12 @@ runs:
     - name: Generate self-signed certificates
       shell: bash
       run: |
-        chmod +x ${{ github.action_path }}/generate-certs.sh
-        ${{ github.action_path }}/generate-certs.sh
+        SCRIPT_PATH="${{ github.action_path }}/generate-certs.sh"
+        if [ "$RUNNER_OS" == "Windows" ]; then
+          SCRIPT_PATH=$(echo "$SCRIPT_PATH" | sed 's|\\|/|g' | sed 's|C:|/c|')
+        fi
+        chmod +x "$SCRIPT_PATH"
+        "$SCRIPT_PATH"
 
     - name: Setup Node.js
       uses: actions/setup-node@v4
