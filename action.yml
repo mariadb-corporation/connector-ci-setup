@@ -81,6 +81,7 @@ runs:
           ${{ '--ssl-ca=/etc/mysql/conf.d/ca.crt'}}
           ${{ '--ssl-cert=/etc/mysql/conf.d/server.crt'}}
           ${{ '--ssl-key=/etc/mysql/conf.d/server.key'}}
+          ${{ '--max-connections=500'}}
         conf-script-folder: ${{ github.workspace }}/.github/workflows/certs
         port: ${{ inputs.test-db-port }}
 
