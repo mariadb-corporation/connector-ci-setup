@@ -1,9 +1,5 @@
 # MariaDB continuous integration setup
 
-to change :
-```
-git tag -a -m "commit description" v1.xx
-git push --follow-tags
-```
+This launch corresponding server in GitHub action.
 
 other related project : https://github.com/mariadb-corporation/connector-ci-build-matrix
