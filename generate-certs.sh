@@ -62,6 +62,9 @@ openssl req -new -key .github/workflows/certs/server.key -out .github/workflows/
 echo "Generate the certificate for the server:"
 openssl x509 -req -days 365 -in .github/workflows/certs/server.csr -out .github/workflows/certs/server.crt -CA .github/workflows/certs/ca.crt -CAkey .github/workflows/certs/ca.key -extensions req_ext -extfile .github/workflows/certs/server.conf
 
+echo "Check certificat version:"
+openssl x509 -in .github/workflows/certs/server.crt -text -noout | grep Version
+
 cat .github/workflows/certs/ca.crt .github/workflows/certs/server.crt > .github/workflows/certs/ca_server.crt
 openssl x509 -noout -fingerprint -sha1 -in .github/workflows/certs/server.crt > .github/workflows/certs/server-cert.sha1
 
