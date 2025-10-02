@@ -53,14 +53,14 @@ echo "subjectAltName = DNS: mariadb.example.com, IP: 127.0.0.1" >> .github/workf
 
 
 echo "Generating private key..."
-openssl genrsa -out .github/workflows/certs/server.key 2048
+openssl genrsa -out .github/workflows/certs/server.key 4096
 
 echo "Generating certificate signing request..."
 openssl req -new -key .github/workflows/certs/server.key -out .github/workflows/certs/server.csr --config .github/workflows/certs/server.conf
 
 
 echo "Generate the certificate for the server:"
-openssl x509 -req -days 365 -in .github/workflows/certs/server.csr -out .github/workflows/certs/server.crt -CA .github/workflows/certs/ca.crt -CAkey .github/workflows/certs/ca.key -extensions req_ext -extfile .github/workflows/certs/server.conf
+openssl x509 -req -sha256 -days 365 -in .github/workflows/certs/server.csr -out .github/workflows/certs/server.crt -CA .github/workflows/certs/ca.crt -CAkey .github/workflows/certs/ca.key -extensions req_ext -extfile .github/workflows/certs/server.conf
 
 echo "Check certificat version:"
 openssl x509 -in .github/workflows/certs/server.crt -text -noout | grep Version
@@ -72,7 +72,7 @@ echo "Server certificate SHA1 fingerprint:"
 cat .github/workflows/certs/server-cert.sha1
 
 echo "Generating client private key..."
-openssl genrsa -out .github/workflows/certs/client.key 2048
+openssl genrsa -out .github/workflows/certs/client.key 4096
 
 echo "Generating password-protected client private key..."
 openssl rsa -aes256 -in .github/workflows/certs/client.key -out .github/workflows/certs/client-encrypted.key -passout pass:qwerty
@@ -81,7 +81,7 @@ echo "Generating client certificate signing request..."
 openssl req -new -key .github/workflows/certs/client.key -out .github/workflows/certs/client.csr --config .github/workflows/certs/server.conf
 
 echo "Generate the certificate for the client:"
-openssl x509 -req -days 365 -in .github/workflows/certs/client.csr -out .github/workflows/certs/client.crt -CA .github/workflows/certs/ca.crt -CAkey .github/workflows/certs/ca.key -extensions req_ext -extfile .github/workflows/certs/server.conf
+openssl x509 -req -days 365 -sha256 -in .github/workflows/certs/client.csr -out .github/workflows/certs/client.crt -CA .github/workflows/certs/ca.crt -CAkey .github/workflows/certs/ca.key -extensions req_ext -extfile .github/workflows/certs/server.conf
 
 echo "Generate the pkcs for the client:"
 openssl pkcs12 -export -in .github/workflows/certs/client.crt -inkey .github/workflows/certs/client.key -out .github/workflows/certs/client.p12 -name "mysqlAlias" -passout pass:kspass
