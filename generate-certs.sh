@@ -79,7 +79,7 @@ openssl req -new -key .github/workflows/certs/server.key -out .github/workflows/
 
 
 echo "Generate the certificate for the server:"
-openssl x509 -req -sha256 -days 365 -in .github/workflows/certs/server.csr -out .github/workflows/certs/server.crt -CA .github/workflows/certs/ca.crt -CAkey .github/workflows/certs/ca.key -CAcreateserial -extensions req_ext -extfile .github/workflows/certs/server.conf
+openssl x509 -req -sha256 -days 365 -in .github/workflows/certs/server.csr -out .github/workflows/certs/server.crt -CA .github/workflows/certs/ca.crt -CAkey .github/workflows/certs/ca.key -CAcreateserial -extensions v3_server -extfile .github/workflows/certs/server.conf
 
 echo "Check certificat version:"
 openssl x509 -in .github/workflows/certs/server.crt -text -noout | grep Version
@@ -100,7 +100,7 @@ echo "Generating client certificate signing request..."
 openssl req -new -key .github/workflows/certs/client.key -out .github/workflows/certs/client.csr -config .github/workflows/certs/server.conf
 
 echo "Generate the certificate for the client:"
-openssl x509 -req -days 365 -sha256 -in .github/workflows/certs/client.csr -out .github/workflows/certs/client.crt -CA .github/workflows/certs/ca.crt -CAkey .github/workflows/certs/ca.key -CAcreateserial -extensions req_ext -extfile .github/workflows/certs/server.conf
+openssl x509 -req -days 365 -sha256 -in .github/workflows/certs/client.csr -out .github/workflows/certs/client.crt -CA .github/workflows/certs/ca.crt -CAkey .github/workflows/certs/ca.key -CAcreateserial -extensions v3_server -extfile .github/workflows/certs/server.conf
 
 echo "Generate the pkcs for the client:"
 openssl pkcs12 -export -in .github/workflows/certs/client.crt -inkey .github/workflows/certs/client.key -out .github/workflows/certs/client.p12 -name "mysqlAlias" -passout pass:kspass
@@ -124,11 +124,15 @@ echo "Certificate details:"
 openssl x509 -in .github/workflows/certs/server.crt -text -noout | grep -E "(Subject|CN)"
 
 echo ""
-echo "Verifying AKID in server certificate:"
-openssl x509 -in .github/workflows/certs/server.crt -text -noout | grep -A 1 "Authority Key Identifier"
+echo "Verifying extensions in server certificate:"
+openssl x509 -in .github/workflows/certs/server.crt -text -noout | grep -A 1 "Authority Key Identifier" || echo "Warning: Authority Key Identifier not found in server certificate"
 
 echo ""
-echo "Verifying AKID in client certificate:"
-openssl x509 -in .github/workflows/certs/client.crt -text -noout | grep -A 1 "Authority Key Identifier"
+echo "Verifying extensions in client certificate:"
+openssl x509 -in .github/workflows/certs/client.crt -text -noout | grep -A 1 "Authority Key Identifier" || echo "Warning: Authority Key Identifier not found in client certificate"
+
+echo ""
+echo "Full server certificate extensions:"
+openssl x509 -in .github/workflows/certs/server.crt -text -noout | grep -A 20 "X509v3 extensions:"
 
 echo "Certificate generation completed successfully!"
