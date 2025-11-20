@@ -58,6 +58,13 @@ echo "" >> .github/workflows/certs/server.conf
 echo "[ req_ext ]" >> .github/workflows/certs/server.conf
 echo "subjectAltName         = DNS:mariadb.example.com,IP:127.0.0.1" >> .github/workflows/certs/server.conf
 echo "subjectKeyIdentifier   = hash" >> .github/workflows/certs/server.conf
+echo "basicConstraints       = CA:FALSE" >> .github/workflows/certs/server.conf
+echo "keyUsage               = digitalSignature,keyEncipherment" >> .github/workflows/certs/server.conf
+echo "extendedKeyUsage       = serverAuth" >> .github/workflows/certs/server.conf
+echo "" >> .github/workflows/certs/server.conf
+echo "[ v3_server ]" >> .github/workflows/certs/server.conf
+echo "subjectAltName         = DNS:mariadb.example.com,IP:127.0.0.1" >> .github/workflows/certs/server.conf
+echo "subjectKeyIdentifier   = hash" >> .github/workflows/certs/server.conf
 echo "authorityKeyIdentifier = keyid:always,issuer" >> .github/workflows/certs/server.conf
 echo "basicConstraints       = CA:FALSE" >> .github/workflows/certs/server.conf
 echo "keyUsage               = digitalSignature,keyEncipherment" >> .github/workflows/certs/server.conf
