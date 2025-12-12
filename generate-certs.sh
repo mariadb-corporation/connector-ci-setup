@@ -93,14 +93,42 @@ cat .github/workflows/certs/server-cert.sha1
 echo "Generating client private key..."
 openssl genrsa -out .github/workflows/certs/client.key 4096
 
+
+echo "[ req ]" > .github/workflows/certs/client.conf
+echo "prompt                 = no" >> .github/workflows/certs/client.conf
+echo "distinguished_name     = req_distinguished_name" >> .github/workflows/certs/client.conf
+echo "req_extensions         = req_ext" >> .github/workflows/certs/client.conf
+echo "" >> .github/workflows/certs/client.conf
+echo "[ req_distinguished_name ]" >> .github/workflows/certs/client.conf
+echo "countryName            = FR" >> .github/workflows/certs/client.conf
+echo "stateOrProvinceName    = Loire-atlantique" >> .github/workflows/certs/client.conf
+echo "localityName           = Nantes" >> .github/workflows/certs/client.conf
+echo "organizationName       = Home" >> .github/workflows/certs/client.conf
+echo "organizationalUnitName = Lab" >> .github/workflows/certs/client.conf
+echo "commonName             = mariadb-client" >> .github/workflows/certs/client.conf
+echo "emailAddress           = admin@mariadb.example.com" >> .github/workflows/certs/client.conf
+echo "" >> .github/workflows/certs/client.conf
+echo "[ req_ext ]" >> .github/workflows/certs/client.conf
+echo "subjectKeyIdentifier   = hash" >> .github/workflows/certs/client.conf
+echo "basicConstraints       = CA:FALSE" >> .github/workflows/certs/client.conf
+echo "keyUsage               = digitalSignature,keyEncipherment" >> .github/workflows/certs/client.conf
+echo "extendedKeyUsage       = clientAuth" >> .github/workflows/certs/client.conf
+echo "" >> .github/workflows/certs/client.conf
+echo "[ v3_client ]" >> .github/workflows/certs/client.conf
+echo "subjectKeyIdentifier   = hash" >> .github/workflows/certs/client.conf
+echo "authorityKeyIdentifier = keyid:always,issuer" >> .github/workflows/certs/client.conf
+echo "basicConstraints       = CA:FALSE" >> .github/workflows/certs/client.conf
+echo "keyUsage               = digitalSignature,keyEncipherment" >> .github/workflows/certs/client.conf
+echo "extendedKeyUsage       = clientAuth" >> .github/workflows/certs/client.conf
+
 echo "Generating password-protected client private key..."
 openssl rsa -aes256 -in .github/workflows/certs/client.key -out .github/workflows/certs/client-encrypted.key -passout pass:qwerty
 
 echo "Generating client certificate signing request..."
-openssl req -new -key .github/workflows/certs/client.key -out .github/workflows/certs/client.csr -config .github/workflows/certs/server.conf
+openssl req -new -key .github/workflows/certs/client.key -out .github/workflows/certs/client.csr -config .github/workflows/certs/client.conf
 
 echo "Generate the certificate for the client:"
-openssl x509 -req -days 365 -sha256 -in .github/workflows/certs/client.csr -out .github/workflows/certs/client.crt -CA .github/workflows/certs/ca.crt -CAkey .github/workflows/certs/ca.key -CAcreateserial -extensions v3_server -extfile .github/workflows/certs/server.conf
+openssl x509 -req -days 365 -sha256 -in .github/workflows/certs/client.csr -out .github/workflows/certs/client.crt -CA .github/workflows/certs/ca.crt -CAkey .github/workflows/certs/ca.key -CAcreateserial -extensions v3_client -extfile .github/workflows/certs/client.conf
 
 echo "Generate the pkcs for the client:"
 openssl pkcs12 -export -in .github/workflows/certs/client.crt -inkey .github/workflows/certs/client.key -out .github/workflows/certs/client.p12 -name "mysqlAlias" -passout pass:kspass
