@@ -92,8 +92,20 @@ runs:
 
     - name: Setup MySQL
       if: inputs.db-type == 'mysql'
-      uses: mirromutth/mysql-action@v1.1
-      with:
-        mysql version: ${{ inputs.db-tag }}
-        mysql database: ${{ inputs.test-db-database }}
-        mysql root password: ${{ inputs.test-db-password }}
+      shell: bash
+      run: |
+        SCRIPT_PATH="${{ github.action_path }}/setup-mysql.sh"
+        if [ "$RUNNER_OS" == "Windows" ]; then
+          SCRIPT_PATH=$(echo "$SCRIPT_PATH" | sed 's|\\|/|g' | sed 's|C:|/c|')
+        fi
+        chmod +x "$SCRIPT_PATH"
+        "$SCRIPT_PATH" \
+          "${{ inputs.db-tag }}" \
+          "${{ inputs.test-db-database }}" \
+          "${{ inputs.test-db-password }}" \
+          "${{ inputs.test-db-port }}" \
+          "${{ inputs.registry-user }}" \
+          "${{ inputs.registry-password }}" \
+          "${{ inputs.db-type == 'mysql' && 'docker.io' || '' }}" \
+          "${{ inputs.os }}" \
+          "${{ github.workspace }}"
