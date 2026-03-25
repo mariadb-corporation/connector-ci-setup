@@ -1,9 +1,6 @@
 name: 'MariaDB Node.js Test Setup'
-description: 'Setup MariaDB/MySQL, Node.js, certificates, and dependencies for testing'
+description: 'Setup MariaDB/MySQL, certificates, and dependencies for testing'
 inputs:
-  node-version:
-    description: 'Node.js version to use'
-    required: true
   db-type:
     description: 'Database type (community, enterprise, dev, mysql)'
     required: true
@@ -62,11 +59,6 @@ runs:
         fi
         chmod +x "$SCRIPT_PATH"
         "$SCRIPT_PATH"
-
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ inputs.node-version }}
 
     - name: Setup MariaDB
       id: mariadb-install
