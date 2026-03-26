@@ -89,7 +89,6 @@ runs:
         registry-password: ${{ inputs.registry-password }}
         additional-conf: |
           ${{ inputs.additional-conf }}
-          ${{ '--loose-caching_sha2_password_auto_generate_rsa_keys=1'}}
           ${{ startsWith(inputs.os, 'windows') && format('--ssl-ca={0}/.github/workflows/certs/ca.crt', github.workspace) || '--ssl-ca=/etc/mysql/conf.d/ca.crt'}}
           ${{ startsWith(inputs.os, 'windows') && format('--ssl-cert={0}/.github/workflows/certs/server.crt', github.workspace) || '--ssl-cert=/etc/mysql/conf.d/server.crt'}}
           ${{ startsWith(inputs.os, 'windows') && format('--ssl-key={0}/.github/workflows/certs/server.key', github.workspace) || '--ssl-key=/etc/mysql/conf.d/server.key'}}
