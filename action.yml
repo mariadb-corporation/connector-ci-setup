@@ -59,6 +59,22 @@ runs:
         fi
         chmod +x "$SCRIPT_PATH"
         "$SCRIPT_PATH"
+        
+        echo "🔍 Debug: Certificate files generated:"
+        ls -la .github/workflows/certs/
+        echo ""
+        echo "🔍 Debug: Certificate file contents:"
+        echo "CA certificate exists: $(test -f .github/workflows/certs/ca.crt && echo 'YES' || echo 'NO')"
+        echo "Server certificate exists: $(test -f .github/workflows/certs/server.crt && echo 'YES' || echo 'NO')"
+        echo "Server key exists: $(test -f .github/workflows/certs/server.key && echo 'YES' || echo 'NO')"
+        echo ""
+        echo "🔍 Debug: Certificate file sizes:"
+        wc -l .github/workflows/certs/ca.crt .github/workflows/certs/server.crt .github/workflows/certs/server.key 2>/dev/null || echo "Some files missing"
+        echo ""
+        echo "🔍 Debug: SSL paths that will be used:"
+        echo "SSL_CA: /etc/mysql/conf.d/ca.crt"
+        echo "SSL_CERT: /etc/mysql/conf.d/server.crt" 
+        echo "SSL_KEY: /etc/mysql/conf.d/server.key"
 
     - name: Setup MariaDB
       id: mariadb-install
@@ -81,6 +97,18 @@ runs:
         conf-script-folder: ${{ github.workspace }}/.github/workflows/certs
         init-script-folder: ${{ inputs.init-script-folder }}
         port: ${{ inputs.test-db-port }}
+
+    - name: Debug SSL Configuration
+      shell: bash
+      run: |
+        echo "🔍 Debug: SSL Configuration being passed to MariaDB:"
+        echo "Database type: ${{ inputs.db-type }}"
+        echo "OS: ${{ inputs.os }}"
+        echo "Workspace: ${{ github.workspace }}"
+        echo ""
+        echo "SSL_CA parameter: ${{ startsWith(inputs.os, 'windows') && format('--ssl-ca={0}/.github/workflows/certs/ca.crt', github.workspace) || '--ssl-ca=/etc/mysql/conf.d/ca.crt'}}"
+        echo "SSL_CERT parameter: ${{ startsWith(inputs.os, 'windows') && format('--ssl-cert={0}/.github/workflows/certs/server.crt', github.workspace) || '--ssl-cert=/etc/mysql/conf.d/server.crt'}}"
+        echo "SSL_KEY parameter: ${{ startsWith(inputs.os, 'windows') && format('--ssl-key={0}/.github/workflows/certs/server.key', github.workspace) || '--ssl-key=/etc/mysql/conf.d/server.key'}}"
 
     - name: Setup MySQL
       if: inputs.db-type == 'mysql'
