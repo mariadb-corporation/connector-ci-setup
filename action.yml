@@ -71,6 +71,32 @@ runs:
         echo "🔍 Debug: Certificate file sizes:"
         wc -l .github/workflows/certs/ca.crt .github/workflows/certs/server.crt .github/workflows/certs/server.key 2>/dev/null || echo "Some files missing"
 
+    - name: Create SSL Configuration File
+      shell: bash
+      run: |
+        echo "Creating SSL configuration file..."
+        
+        if [ "$RUNNER_OS" == "Windows" ]; then
+          SSL_CA="${{ github.workspace }}/.github/workflows/certs/ca.crt"
+          SSL_CERT="${{ github.workspace }}/.github/workflows/certs/server.crt"
+          SSL_KEY="${{ github.workspace }}/.github/workflows/certs/server.key"
+        else
+          SSL_CA="/etc/mysql/ssl/ca.crt"
+          SSL_CERT="/etc/mysql/ssl/server.crt"
+          SSL_KEY="/etc/mysql/ssl/server.key"
+        fi
+        
+        cat > .github/workflows/certs/99-ssl.cnf << EOF
+        [mariadb]
+        # SSL Configuration
+        ssl_ca = $SSL_CA
+        ssl_cert = $SSL_CERT
+        ssl_key = $SSL_KEY
+        
+        # Performance Configuration
+        max-connections = 500
+        EOF
+
     - name: Setup MariaDB
       id: mariadb-install
       if: inputs.db-type != 'mysql'
@@ -84,25 +110,9 @@ runs:
         registry-password: ${{ inputs.registry-password }}
         additional-conf: |
           ${{ inputs.additional-conf }}
-          ${{ startsWith(inputs.os, 'windows') && format('--ssl-ca={0}/.github/workflows/certs/ca.crt', github.workspace) || '--ssl-ca=/etc/mysql/ssl/ca.crt'}}
-          ${{ startsWith(inputs.os, 'windows') && format('--ssl-cert={0}/.github/workflows/certs/server.crt', github.workspace) || '--ssl-cert=/etc/mysql/ssl/server.crt'}}
-          ${{ startsWith(inputs.os, 'windows') && format('--ssl-key={0}/.github/workflows/certs/server.key', github.workspace) || '--ssl-key=/etc/mysql/ssl/server.key'}}
-          ${{ '--max-connections=500'}}
         ssl-script-folder: ${{ github.workspace }}/.github/workflows/certs
         init-script-folder: ${{ inputs.init-script-folder }}
         port: ${{ inputs.test-db-port }}
-
-    - name: Debug SSL Configuration
-      shell: bash
-      run: |
-        echo "🔍 Debug: SSL Configuration being passed to MariaDB:"
-        echo "Database type: ${{ inputs.db-type }}"
-        echo "OS: ${{ inputs.os }}"
-        echo "Workspace: ${{ github.workspace }}"
-        echo ""
-        echo "SSL_CA parameter: ${{ startsWith(inputs.os, 'windows') && format('--ssl-ca={0}/.github/workflows/certs/ca.crt', github.workspace) || '--ssl-ca=/etc/mysql/ssl/ca.crt'}}"
-        echo "SSL_CERT parameter: ${{ startsWith(inputs.os, 'windows') && format('--ssl-cert={0}/.github/workflows/certs/server.crt', github.workspace) || '--ssl-cert=/etc/mysql/ssl/server.crt'}}"
-        echo "SSL_KEY parameter: ${{ startsWith(inputs.os, 'windows') && format('--ssl-key={0}/.github/workflows/certs/server.key', github.workspace) || '--ssl-key=/etc/mysql/ssl/server.key'}}"
 
     - name: Setup MySQL
       if: inputs.db-type == 'mysql'
