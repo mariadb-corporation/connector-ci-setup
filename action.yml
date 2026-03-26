@@ -88,7 +88,7 @@ runs:
           ${{ startsWith(inputs.os, 'windows') && format('--ssl-cert={0}/.github/workflows/certs/server.crt', github.workspace) || '--ssl-cert=/etc/mysql/conf.d/ssl/server.crt'}}
           ${{ startsWith(inputs.os, 'windows') && format('--ssl-key={0}/.github/workflows/certs/server.key', github.workspace) || '--ssl-key=/etc/mysql/conf.d/ssl/server.key'}}
           ${{ '--max-connections=500'}}
-        conf-script-folder: ${{ github.workspace }}/.github/workflows/certs
+        ssl-script-folder: ${{ github.workspace }}/.github/workflows/certs
         init-script-folder: ${{ inputs.init-script-folder }}
         port: ${{ inputs.test-db-port }}
 
