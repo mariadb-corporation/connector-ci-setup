@@ -112,6 +112,7 @@ runs:
           ${{ inputs.additional-conf }}
         ssl-script-folder: ${{ github.workspace }}/.github/workflows/certs
         init-script-folder: ${{ inputs.init-script-folder }}
+        configuration-file: ${{ github.workspace }}.github/workflows/certs/99-ssl.cnf
         port: ${{ inputs.test-db-port }}
 
     - name: Setup MySQL
