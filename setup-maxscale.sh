@@ -106,6 +106,27 @@ EOF
 
 echo "✅ MaxScale configuration created at ${MAXSCALE_CONF_DIR}/maxscale.cnf"
 
+# Create MaxScale user in MariaDB before starting MaxScale
+echo "👤 Creating MaxScale user in MariaDB..."
+${CONTAINER_RUNTIME} exec mariadbcontainer mariadb -uroot -p"${DB_ROOT_PASSWORD}" -e "
+    CREATE USER IF NOT EXISTS 'maxscale'@'%' IDENTIFIED BY '${DB_ROOT_PASSWORD}';
+    GRANT SELECT ON mysql.user TO 'maxscale'@'%';
+    GRANT SELECT ON mysql.db TO 'maxscale'@'%';
+    GRANT SELECT ON mysql.tables_priv TO 'maxscale'@'%';
+    GRANT SELECT ON mysql.roles_mapping TO 'maxscale'@'%';
+    GRANT SHOW DATABASES ON *.* TO 'maxscale'@'%';
+    GRANT REPLICATION CLIENT ON *.* TO 'maxscale'@'%';
+    GRANT REPLICATION SLAVE ON *.* TO 'maxscale'@'%';
+    FLUSH PRIVILEGES;
+"
+
+if [ $? -eq 0 ]; then
+    echo "✅ MaxScale user created successfully"
+else
+    echo "❌ Failed to create MaxScale user"
+    exit 1
+fi
+
 # Pull MaxScale image
 MAXSCALE_IMAGE="docker.mariadb.com/maxscale:${MAXSCALE_TAG}"
 echo "📥 Pulling MaxScale image: ${MAXSCALE_IMAGE}"
@@ -146,27 +167,6 @@ if [ $WAIT_COUNT -ge $MAX_WAIT ]; then
     echo "❌ MaxScale failed to become ready within ${MAX_WAIT} seconds"
     echo "📋 MaxScale logs:"
     ${CONTAINER_RUNTIME} logs maxscalecontainer
-    exit 1
-fi
-
-# Create MaxScale user in MariaDB
-echo "👤 Creating MaxScale user in MariaDB..."
-${CONTAINER_RUNTIME} exec mariadbcontainer mariadb -uroot -p"${DB_ROOT_PASSWORD}" -e "
-    CREATE USER IF NOT EXISTS 'maxscale'@'%' IDENTIFIED BY '${DB_ROOT_PASSWORD}';
-    GRANT SELECT ON mysql.user TO 'maxscale'@'%';
-    GRANT SELECT ON mysql.db TO 'maxscale'@'%';
-    GRANT SELECT ON mysql.tables_priv TO 'maxscale'@'%';
-    GRANT SELECT ON mysql.roles_mapping TO 'maxscale'@'%';
-    GRANT SHOW DATABASES ON *.* TO 'maxscale'@'%';
-    GRANT REPLICATION CLIENT ON *.* TO 'maxscale'@'%';
-    GRANT REPLICATION SLAVE ON *.* TO 'maxscale'@'%';
-    FLUSH PRIVILEGES;
-"
-
-if [ $? -eq 0 ]; then
-    echo "✅ MaxScale user created successfully"
-else
-    echo "❌ Failed to create MaxScale user"
     exit 1
 fi
 
