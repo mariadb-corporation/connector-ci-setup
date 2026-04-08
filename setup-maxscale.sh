@@ -12,7 +12,7 @@ DB_ROOT_PASSWORD="$4"
 WORKSPACE="$5"
 
 MXS_PORT="${TEST_MXS_PORT:-3306}"
-MXS_SSL_PORT="${TEST_MXS_SSL_PORT:-4009}"
+MXS_SSL_PORT="${TEST_MAXSCALE_TLS_PORT:-4009}"
 MXS_REST_PORT="8989"
 DB_PORT="3305"  # MariaDB runs on 3305 when MaxScale is enabled
 
@@ -98,6 +98,10 @@ type=server
 address=mariadb.example.com
 port=${DB_PORT}
 protocol=MariaDBBackend
+ssl=true
+ssl_cert=/etc/maxscale.d/certs/server.crt
+ssl_key=/etc/maxscale.d/certs/server.key
+ssl_ca=/etc/maxscale.d/certs/ca.crt
 EOF
 
 echo "✅ MaxScale configuration created at ${MAXSCALE_CONF_DIR}/maxscale.cnf"
@@ -179,4 +183,4 @@ echo "   MaxScale REST API: ${MXS_REST_PORT}"
 echo ""
 echo "Environment variables set:"
 echo "   TEST_MXS_PORT=${MXS_PORT}"
-echo "   TEST_MXS_SSL_PORT=${MXS_SSL_PORT}"
+echo "   TEST_MAXSCALE_TLS_PORT=${MXS_SSL_PORT}"

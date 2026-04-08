@@ -40,6 +40,12 @@ outputs:
   database-type:
     description: 'Type of database that was setup'
     value: ${{ steps.mariadb-install.outputs.database-type }}
+  mxs-port:
+    description: 'MaxScale port (set when maxscale-tag is provided)'
+    value: ${{ steps.maxscale-setup.outputs.mxs-port }}
+  mxs-tls-port:
+    description: 'MaxScale TLS port (set when maxscale-tag is provided)'
+    value: ${{ steps.maxscale-setup.outputs.mxs-tls-port }}
 
 runs:
   using: 'composite'
@@ -86,12 +92,16 @@ runs:
         port: ${{ inputs.maxscale-tag != '' && '3305' || inputs.test-db-port }}
 
     - name: Setup MaxScale
+      id: maxscale-setup
       if: inputs.maxscale-tag != ''
       shell: bash
       run: |
         # Export MaxScale ports as environment variables
         echo "TEST_MXS_PORT=${TEST_MXS_PORT}" >> $GITHUB_ENV
-        echo "TEST_MXS_SSL_PORT=${TEST_MXS_SSL_PORT}" >> $GITHUB_ENV
+        echo "TEST_MAXSCALE_TLS_PORT=${TEST_MAXSCALE_TLS_PORT}" >> $GITHUB_ENV
+        # Export as step outputs
+        echo "mxs-port=${TEST_MXS_PORT}" >> $GITHUB_OUTPUT
+        echo "mxs-tls-port=${TEST_MAXSCALE_TLS_PORT}" >> $GITHUB_OUTPUT
         
         SCRIPT_PATH="${{ github.action_path }}/setup-maxscale.sh"
         chmod +x "$SCRIPT_PATH"
@@ -103,7 +113,7 @@ runs:
           "${{ github.workspace }}"
       env:
         TEST_MXS_PORT: ${{ inputs.test-db-port }}
-        TEST_MXS_SSL_PORT: 4009
+        TEST_MAXSCALE_TLS_PORT: 4009
 
     - name: Setup MySQL
       if: inputs.db-type == 'mysql'
