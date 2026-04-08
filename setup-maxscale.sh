@@ -64,7 +64,7 @@ module=mariadbmon
 servers=server1
 user=maxscale
 password=${DB_ROOT_PASSWORD}
-monitor_interval=2000
+monitor_interval=2000ms
 
 # ReadWrite Split Router Service
 [Read-Write-Service]
