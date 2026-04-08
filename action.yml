@@ -76,6 +76,8 @@ runs:
       with:
         tag: ${{ inputs.db-tag }}
         root-password: ${{ inputs.test-db-password }}
+        user: testuser
+        password: ${{ inputs.test-db-password }}
         database: ${{ inputs.test-db-database }}
         registry: ${{ inputs.db-type == 'enterprise' && 'docker.mariadb.com/enterprise-server' || (inputs.db-type == 'dev' && 'quay.io/mariadb-foundation/mariadb-devel' || '') }}
         registry-user: ${{ inputs.registry-user }}
