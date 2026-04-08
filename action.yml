@@ -94,16 +94,13 @@ runs:
         port: ${{ inputs.maxscale-tag != '' && '3305' || inputs.test-db-port }}
 
     - name: Grant testuser privileges
-      if: inputs.db-type != 'mysql'
       shell: bash
       run: |
-        docker exec mariadbcontainer mariadb -uroot -p"${{ inputs.test-db-password }}" -e "GRANT RELOAD ON *.* TO 'testuser'@'%'; FLUSH PRIVILEGES;"
-
-    - name: Grant testuser privileges (MySQL)
-      if: inputs.db-type == 'mysql'
-      shell: bash
-      run: |
-        docker exec mysql-test mysql -uroot -p"${{ inputs.test-db-password }}" -e "GRANT RELOAD ON *.* TO 'testuser'@'%'; FLUSH PRIVILEGES;"
+        if [ "${{ inputs.db-type }}" == "mysql" ]; then
+          docker exec mysql-test mysql -uroot -p"${{ inputs.test-db-password }}" -e "GRANT RELOAD ON *.* TO 'testuser'@'%'; FLUSH PRIVILEGES;"
+        else
+          docker exec mariadbcontainer mariadb -uroot -p"${{ inputs.test-db-password }}" -e "GRANT RELOAD ON *.* TO 'testuser'@'%'; FLUSH PRIVILEGES;"
+        fi
 
     - name: Setup MaxScale
       id: maxscale-setup
