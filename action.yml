@@ -135,4 +135,6 @@ runs:
           "${{ inputs.registry-password }}" \
           "${{ inputs.db-type == 'mysql' && 'docker.io' || '' }}" \
           "${{ inputs.os }}" \
-          "${{ github.workspace }}"
+          "${{ github.workspace }}" \
+          "testuser" \
+          "${{ inputs.test-db-password }}"

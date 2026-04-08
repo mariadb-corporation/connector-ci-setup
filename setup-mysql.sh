@@ -16,6 +16,8 @@ REGISTRY_PASSWORD="${6}"
 REGISTRY="${7}"
 OS_TYPE="${8}"
 WORKSPACE="${9}"
+MYSQL_USER="${10}"
+MYSQL_PASSWORD="${11}"
 
 # Determine container runtime
 if command -v docker &> /dev/null; then
@@ -81,6 +83,8 @@ ${CONTAINER_RUNTIME} run -d \
     --name mysql-test \
     -e MYSQL_ROOT_PASSWORD="${MYSQL_ROOT_PASSWORD}" \
     -e MYSQL_DATABASE="${MYSQL_DATABASE}" \
+    $( [[ -n "${MYSQL_USER}" ]] && echo "-e MYSQL_USER=${MYSQL_USER}" ) \
+    $( [[ -n "${MYSQL_PASSWORD}" ]] && echo "-e MYSQL_PASSWORD=${MYSQL_PASSWORD}" ) \
     -p ${MYSQL_PORT}:3306 \
     -v "${CERT_MOUNT}" \
     ${IMAGE} \
