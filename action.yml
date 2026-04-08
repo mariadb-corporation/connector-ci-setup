@@ -83,15 +83,15 @@ runs:
           ${{ '--max-connections=500'}}
         conf-script-folder: ${{ github.workspace }}/.github/workflows/certs
         init-script-folder: ${{ inputs.init-script-folder }}
-        port: ${{ inputs.test-db-port }}
+        port: ${{ inputs.maxscale-tag != '' && '3305' || inputs.test-db-port }}
 
     - name: Setup MaxScale
       if: inputs.maxscale-tag != ''
       shell: bash
       run: |
         # Export MaxScale ports as environment variables
-        echo "TEST_MXS_PORT=4006" >> $GITHUB_ENV
-        echo "TEST_MXS_SSL_PORT=4009" >> $GITHUB_ENV
+        echo "TEST_MXS_PORT=${TEST_MXS_PORT}" >> $GITHUB_ENV
+        echo "TEST_MXS_SSL_PORT=${TEST_MXS_SSL_PORT}" >> $GITHUB_ENV
         
         SCRIPT_PATH="${{ github.action_path }}/setup-maxscale.sh"
         chmod +x "$SCRIPT_PATH"
@@ -102,7 +102,7 @@ runs:
           "${{ inputs.test-db-password }}" \
           "${{ github.workspace }}"
       env:
-        TEST_MXS_PORT: 4006
+        TEST_MXS_PORT: ${{ inputs.test-db-port }}
         TEST_MXS_SSL_PORT: 4009
 
     - name: Setup MySQL

@@ -29,8 +29,10 @@ To enable MaxScale in your CI workflow, add the `maxscale-tag` input parameter:
 
 When MaxScale is enabled, the following environment variables are automatically set:
 
-- `TEST_MXS_PORT`: MaxScale non-SSL port (default: 4006)
+- `TEST_MXS_PORT`: MaxScale non-SSL port (default: 3306)
 - `TEST_MXS_SSL_PORT`: MaxScale SSL port (default: 4009)
+
+**Note:** When MaxScale is enabled, MariaDB runs on port 3305 and MaxScale proxies on the standard port 3306.
 
 ### Requirements
 
@@ -41,13 +43,13 @@ When MaxScale is enabled, the following environment variables are automatically 
 ### Architecture
 
 When MaxScale is enabled:
-1. MariaDB Enterprise server is deployed on port 3306
+1. MariaDB Enterprise server is deployed on port 3305
 2. MaxScale is deployed as a proxy
 3. MaxScale listens on:
-   - Port 4006 for non-SSL connections
+   - Port 3306 for non-SSL connections (standard MariaDB port)
    - Port 4009 for SSL connections
    - Port 8989 for REST API
-4. Tests can connect through MaxScale instead of directly to MariaDB
+4. Tests can connect through MaxScale on port 3306 instead of directly to MariaDB
 
 ### Example Test Connection
 
@@ -55,7 +57,7 @@ When MaxScale is enabled:
 // Connect through MaxScale (non-SSL)
 const conn = await mariadb.createConnection({
   host: 'mariadb.example.com',
-  port: process.env.TEST_MXS_PORT || 4006,
+  port: process.env.TEST_MXS_PORT || 3306,
   user: 'root',
   password: process.env.TEST_DB_PASSWORD
 });

@@ -11,9 +11,10 @@ REGISTRY_PASSWORD="$3"
 DB_ROOT_PASSWORD="$4"
 WORKSPACE="$5"
 
-MXS_PORT="${TEST_MXS_PORT:-4006}"
+MXS_PORT="${TEST_MXS_PORT:-3306}"
 MXS_SSL_PORT="${TEST_MXS_SSL_PORT:-4009}"
 MXS_REST_PORT="8989"
+DB_PORT="3305"  # MariaDB runs on 3305 when MaxScale is enabled
 
 echo "🔧 Setting up MaxScale ${MAXSCALE_TAG}..."
 
@@ -95,7 +96,7 @@ ssl_ca=/etc/maxscale.d/certs/ca.crt
 [server1]
 type=server
 address=mariadb.example.com
-port=3306
+port=${DB_PORT}
 protocol=MariaDBBackend
 EOF
 
