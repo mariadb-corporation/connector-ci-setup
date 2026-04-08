@@ -148,7 +148,7 @@ MAX_WAIT=30
 WAIT_COUNT=0
 
 while [ $WAIT_COUNT -lt $MAX_WAIT ]; do
-    if ${CONTAINER_RUNTIME} exec maxscalecontainer maxctrl --hosts 127.0.0.1:${MXS_REST_PORT} show maxscale > /dev/null 2>&1; then
+    if (echo > /dev/tcp/127.0.0.1/${MXS_PORT}) > /dev/null 2>&1; then
         echo "✅ MaxScale is ready!"
         break
     fi
