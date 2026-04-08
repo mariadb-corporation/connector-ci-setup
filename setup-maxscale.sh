@@ -99,8 +99,6 @@ address=mariadb.example.com
 port=${DB_PORT}
 protocol=MariaDBBackend
 ssl=true
-ssl_cert=/etc/maxscale.d/certs/server.crt
-ssl_key=/etc/maxscale.d/certs/server.key
 ssl_ca=/etc/maxscale.d/certs/ca.crt
 EOF
 
