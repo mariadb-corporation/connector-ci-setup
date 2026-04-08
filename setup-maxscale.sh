@@ -110,13 +110,7 @@ echo "✅ MaxScale configuration created at ${MAXSCALE_CONF_DIR}/maxscale.cnf"
 echo "👤 Creating MaxScale user in MariaDB..."
 ${CONTAINER_RUNTIME} exec mariadbcontainer mariadb -uroot -p"${DB_ROOT_PASSWORD}" -e "
     CREATE USER IF NOT EXISTS 'maxscale'@'%' IDENTIFIED BY '${DB_ROOT_PASSWORD}';
-    GRANT SELECT ON mysql.user TO 'maxscale'@'%';
-    GRANT SELECT ON mysql.db TO 'maxscale'@'%';
-    GRANT SELECT ON mysql.tables_priv TO 'maxscale'@'%';
-    GRANT SELECT ON mysql.roles_mapping TO 'maxscale'@'%';
-    GRANT SHOW DATABASES ON *.* TO 'maxscale'@'%';
-    GRANT REPLICATION CLIENT ON *.* TO 'maxscale'@'%';
-    GRANT REPLICATION SLAVE ON *.* TO 'maxscale'@'%';
+    GRANT ALL PRIVILEGES ON *.* TO 'maxscale'@'%' WITH GRANT OPTION;
     FLUSH PRIVILEGES;
 "
 
