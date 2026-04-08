@@ -93,15 +93,6 @@ runs:
         init-script-folder: ${{ inputs.init-script-folder }}
         port: ${{ inputs.maxscale-tag != '' && '3305' || inputs.test-db-port }}
 
-    - name: Grant testuser privileges
-      shell: bash
-      run: |
-        if [ "${{ inputs.db-type }}" == "mysql" ]; then
-          docker exec mysql-test mysql -uroot -p"${{ inputs.test-db-password }}" -e "GRANT RELOAD ON *.* TO 'testuser'@'%'; FLUSH PRIVILEGES;"
-        else
-          docker exec mariadbcontainer mariadb -uroot -p"${{ inputs.test-db-password }}" -e "GRANT RELOAD ON *.* TO 'testuser'@'%'; FLUSH PRIVILEGES;"
-        fi
-
     - name: Setup MaxScale
       id: maxscale-setup
       if: inputs.maxscale-tag != ''
@@ -147,3 +138,12 @@ runs:
           "${{ github.workspace }}" \
           "testuser" \
           "${{ inputs.test-db-password }}"
+
+    - name: Grant testuser privileges
+      shell: bash
+      run: |
+        if [ "${{ inputs.db-type }}" == "mysql" ]; then
+          docker exec mysql-test mysql -uroot -p"${{ inputs.test-db-password }}" -e "GRANT RELOAD ON *.* TO 'testuser'@'%'; FLUSH PRIVILEGES;"
+        else
+          docker exec mariadbcontainer mariadb -uroot -p"${{ inputs.test-db-password }}" -e "GRANT RELOAD ON *.* TO 'testuser'@'%'; FLUSH PRIVILEGES;"
+        fi
