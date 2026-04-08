@@ -20,10 +20,10 @@ MYSQL_USER="${10}"
 MYSQL_PASSWORD="${11}"
 
 # Determine container runtime
-if command -v docker &> /dev/null; then
-    CONTAINER_RUNTIME="docker"
-elif command -v podman &> /dev/null; then
+if type podman > /dev/null 2>&1; then
     CONTAINER_RUNTIME="podman"
+elif type docker > /dev/null 2>&1; then
+    CONTAINER_RUNTIME="docker"
 else
     echo "❌ Neither docker nor podman found"
     exit 1

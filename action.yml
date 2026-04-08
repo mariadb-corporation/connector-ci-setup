@@ -142,8 +142,9 @@ runs:
     - name: Grant testuser privileges
       shell: bash
       run: |
+        if type podman > /dev/null 2>&1; then RUNTIME="podman"; elif type docker > /dev/null 2>&1; then RUNTIME="docker"; else echo "❌ No container runtime found"; exit 1; fi
         if [ "${{ inputs.db-type }}" == "mysql" ]; then
-          docker exec mysql-test mysql -uroot -p"${{ inputs.test-db-password }}" -e "GRANT RELOAD ON *.* TO 'testuser'@'%'; FLUSH PRIVILEGES;"
+          $RUNTIME exec mysql-test mysql -uroot -p"${{ inputs.test-db-password }}" -e "GRANT RELOAD ON *.* TO 'testuser'@'%'; FLUSH PRIVILEGES;"
         else
-          docker exec mariadbcontainer mariadb -uroot -p"${{ inputs.test-db-password }}" -e "GRANT RELOAD ON *.* TO 'testuser'@'%'; FLUSH PRIVILEGES;"
+          $RUNTIME exec mariadbcontainer mariadb -uroot -p"${{ inputs.test-db-password }}" -e "GRANT RELOAD ON *.* TO 'testuser'@'%'; FLUSH PRIVILEGES;"
         fi
