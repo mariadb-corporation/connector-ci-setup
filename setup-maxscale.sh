@@ -164,11 +164,6 @@ if [ $WAIT_COUNT -ge $MAX_WAIT ]; then
     exit 1
 fi
 
-# Display MaxScale status
-echo "📊 MaxScale status:"
-${CONTAINER_RUNTIME} exec maxscalecontainer maxctrl --hosts 127.0.0.1:${MXS_REST_PORT} list servers
-${CONTAINER_RUNTIME} exec maxscalecontainer maxctrl --hosts 127.0.0.1:${MXS_REST_PORT} list services
-
 echo ""
 echo "✅ MaxScale setup complete!"
 echo "   MaxScale Port (non-SSL): ${MXS_PORT}"
