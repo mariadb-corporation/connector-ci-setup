@@ -82,9 +82,9 @@ MYSQL_CERT_DIR=$(mktemp -d)
 cp "${WORKSPACE}/.github/workflows/certs/ca.crt" "${MYSQL_CERT_DIR}/"
 cp "${WORKSPACE}/.github/workflows/certs/server.crt" "${MYSQL_CERT_DIR}/"
 cp "${WORKSPACE}/.github/workflows/certs/server.key" "${MYSQL_CERT_DIR}/"
-sudo chown -R 999:999 "${MYSQL_CERT_DIR}"
 chmod 644 "${MYSQL_CERT_DIR}/ca.crt" "${MYSQL_CERT_DIR}/server.crt"
 chmod 600 "${MYSQL_CERT_DIR}/server.key"
+sudo chown -R 999:999 "${MYSQL_CERT_DIR}"
 
 echo "📂 MySQL cert directory contents:"
 ls -la "${MYSQL_CERT_DIR}/"
