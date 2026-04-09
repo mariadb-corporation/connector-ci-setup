@@ -97,7 +97,7 @@ ${CONTAINER_RUNTIME} run -d \
 
 echo "Waiting for MySQL to be ready..."
 for i in {1..30}; do
-    if ${CONTAINER_RUNTIME} exec mysql-test mysqladmin ping -h localhost -u root -p"${MYSQL_ROOT_PASSWORD}" --silent &> /dev/null; then
+    if (echo > /dev/tcp/127.0.0.1/${MYSQL_PORT}) > /dev/null 2>&1; then
         echo "✅ MySQL is ready"
         exit 0
     fi
