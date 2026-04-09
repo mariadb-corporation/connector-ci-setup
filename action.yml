@@ -151,8 +151,8 @@ runs:
             mysql -uroot -p"${{ inputs.test-db-password }}" -e "${GRANT_SQL_LOCAL}" || true
           else
             if type podman > /dev/null 2>&1; then RUNTIME="podman"; else RUNTIME="docker"; fi
-            $RUNTIME exec mysql-test mysql -uroot -p"${{ inputs.test-db-password }}" -e "${GRANT_SQL}"
-            $RUNTIME exec mysql-test mysql -uroot -p"${{ inputs.test-db-password }}" -e "${GRANT_SQL_LOCAL}" || true
+            $RUNTIME exec mysql-test mysql -h 127.0.0.1 -uroot -p"${{ inputs.test-db-password }}" -e "${GRANT_SQL}"
+            $RUNTIME exec mysql-test mysql -h 127.0.0.1 -uroot -p"${{ inputs.test-db-password }}" -e "${GRANT_SQL_LOCAL}" || true
           fi
         else
           if [ "${DB_TYPE}" == "local" ]; then
