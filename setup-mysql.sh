@@ -77,6 +77,11 @@ else
     CERT_MOUNT="${WORKSPACE}/.github/workflows/certs:/etc/mysql/certs"
 fi
 
+# Fix cert permissions for MySQL (strict about SSL file ownership)
+chmod 644 "${WORKSPACE}/.github/workflows/certs/ca.crt" \
+           "${WORKSPACE}/.github/workflows/certs/server.crt" || true
+chmod 640 "${WORKSPACE}/.github/workflows/certs/server.key" || true
+
 # Run MySQL container
 echo "Starting MySQL container..."
 ${CONTAINER_RUNTIME} run -d \
@@ -86,7 +91,7 @@ ${CONTAINER_RUNTIME} run -d \
     $( [[ -n "${MYSQL_USER}" ]] && echo "-e MYSQL_USER=${MYSQL_USER}" ) \
     $( [[ -n "${MYSQL_PASSWORD}" ]] && echo "-e MYSQL_PASSWORD=${MYSQL_PASSWORD}" ) \
     -p ${MYSQL_PORT}:3306 \
-    -v "${CERT_MOUNT}" \
+    -v "${CERT_MOUNT}:ro" \
     ${IMAGE} \
     --ssl-ca=/etc/mysql/certs/ca.crt \
     --ssl-cert=/etc/mysql/certs/server.crt \
@@ -96,12 +101,12 @@ ${CONTAINER_RUNTIME} run -d \
     --collation-server=utf8mb4_general_ci
 
 echo "Waiting for MySQL to be ready..."
-for i in {1..30}; do
-    if (echo > /dev/tcp/127.0.0.1/${MYSQL_PORT}) > /dev/null 2>&1; then
+for i in {1..40}; do
+    if ${CONTAINER_RUNTIME} exec mysql-test mysql -uroot -p"${MYSQL_ROOT_PASSWORD}" -e "SELECT 1;" > /dev/null 2>&1; then
         echo "✅ MySQL is ready"
         exit 0
     fi
-    echo "Waiting... ($i/30)"
+    echo "Waiting... ($i/40)"
     sleep 2
 done
 
