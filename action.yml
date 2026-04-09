@@ -142,20 +142,25 @@ runs:
     - name: Grant testuser privileges
       shell: bash
       run: |
-        GRANT_SQL="GRANT RELOAD ON *.* TO 'testuser'@'%'; GRANT RELOAD ON *.* TO 'testuser'@'localhost'; FLUSH PRIVILEGES;"
+        GRANT_SQL="GRANT RELOAD ON *.* TO 'testuser'@'%'; FLUSH PRIVILEGES;"
+        GRANT_SQL_LOCAL="GRANT RELOAD ON *.* TO 'testuser'@'localhost'; FLUSH PRIVILEGES;"
         DB_TYPE="${{ steps.mariadb-install.outputs.database-type }}"
         if [ "${{ inputs.db-type }}" == "mysql" ]; then
           if [ "${DB_TYPE}" == "local" ]; then
             mysql -uroot -p"${{ inputs.test-db-password }}" -e "${GRANT_SQL}"
+            mysql -uroot -p"${{ inputs.test-db-password }}" -e "${GRANT_SQL_LOCAL}" || true
           else
             if type podman > /dev/null 2>&1; then RUNTIME="podman"; else RUNTIME="docker"; fi
             $RUNTIME exec mysql-test mysql -uroot -p"${{ inputs.test-db-password }}" -e "${GRANT_SQL}"
+            $RUNTIME exec mysql-test mysql -uroot -p"${{ inputs.test-db-password }}" -e "${GRANT_SQL_LOCAL}" || true
           fi
         else
           if [ "${DB_TYPE}" == "local" ]; then
             mariadb -uroot -p"${{ inputs.test-db-password }}" -e "${GRANT_SQL}"
+            mariadb -uroot -p"${{ inputs.test-db-password }}" -e "${GRANT_SQL_LOCAL}" || true
           else
             if type podman > /dev/null 2>&1; then RUNTIME="podman"; else RUNTIME="docker"; fi
             $RUNTIME exec mariadbcontainer mariadb -uroot -p"${{ inputs.test-db-password }}" -e "${GRANT_SQL}"
+            $RUNTIME exec mariadbcontainer mariadb -uroot -p"${{ inputs.test-db-password }}" -e "${GRANT_SQL_LOCAL}" || true
           fi
         fi
