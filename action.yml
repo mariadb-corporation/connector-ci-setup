@@ -142,7 +142,7 @@ runs:
     - name: Grant testuser privileges
       shell: bash
       run: |
-        GRANT_SQL="GRANT RELOAD ON *.* TO 'testuser'@'%'; FLUSH PRIVILEGES;"
+        GRANT_SQL="GRANT RELOAD ON *.* TO 'testuser'@'%'; GRANT RELOAD ON *.* TO 'testuser'@'localhost'; FLUSH PRIVILEGES;"
         DB_TYPE="${{ steps.mariadb-install.outputs.database-type }}"
         if [ "${{ inputs.db-type }}" == "mysql" ]; then
           if [ "${DB_TYPE}" == "local" ]; then
