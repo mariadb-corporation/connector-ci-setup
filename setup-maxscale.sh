@@ -11,6 +11,22 @@ REGISTRY_PASSWORD="$3"
 DB_ROOT_PASSWORD="$4"
 WORKSPACE="$5"
 
+# If latest tag specified, query Docker Hub for actual latest version number
+if [ -z "${MAXSCALE_TAG}" ] || [ "${MAXSCALE_TAG}" == "latest" ]; then
+    echo "🔍 Querying Docker Hub for latest MaxScale version..."
+    LATEST_TAG=$(curl -s "https://hub.docker.com/v2/repositories/mariadb/maxscale/tags?page_size=20" 2>/dev/null | \
+        grep -o '"name": "[0-9]\+\.[0-9]\+\.[0-9]\+"' | \
+        head -1 | \
+        sed 's/"name": "//;s/"$//' || echo "")
+    if [ -n "${LATEST_TAG}" ]; then
+        MAXSCALE_TAG="${LATEST_TAG}"
+        echo "✅ Found latest MaxScale version: ${MAXSCALE_TAG}"
+    else
+        MAXSCALE_TAG="latest"
+        echo "⚠️ Could not determine latest version, using 'latest' tag"
+    fi
+fi
+
 MXS_PORT="${TEST_MXS_PORT:-3306}"
 MXS_SSL_PORT="${TEST_MAXSCALE_TLS_PORT:-4009}"
 MXS_REST_PORT="8989"
@@ -66,6 +82,13 @@ user=maxscale
 password=${DB_ROOT_PASSWORD}
 monitor_interval=2000ms
 
+# Regex Filter for maxscale_version() query
+[MaxScaleVersionFilter]
+type=filter
+module=regexfilter
+match=SELECT.*maxscale_version\(\)
+replace=SELECT '${MAXSCALE_TAG}' AS maxscale_version
+
 # ReadWrite Split Router Service
 [Read-Write-Service]
 type=service
@@ -73,6 +96,7 @@ router=readwritesplit
 servers=server1
 user=maxscale
 password=${DB_ROOT_PASSWORD}
+filters=MaxScaleVersionFilter
 
 # ReadWrite Split Listener (non-SSL)
 [Read-Write-Listener]
