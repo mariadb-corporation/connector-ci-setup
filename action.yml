@@ -159,7 +159,7 @@ runs:
             DB_CLI=$(command -v mariadb > /dev/null 2>&1 && echo "mariadb" || echo "mysql")
             $DB_CLI -uroot -p"${{ inputs.test-db-password }}" -e "
               CREATE USER IF NOT EXISTS 'testuser'@'localhost' IDENTIFIED BY '${{ inputs.test-db-password }}';
-              GRANT ALL PRIVILEGES ON \`${{ inputs.test-db-database }}\`.* TO 'testuser'@'localhost';
+              GRANT ALL PRIVILEGES ON *.* TO 'testuser'@'localhost';
               ${GRANT_SQL_LOCAL}
             " || true
             $DB_CLI -uroot -p"${{ inputs.test-db-password }}" -e "${GRANT_SQL}"
