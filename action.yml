@@ -151,8 +151,8 @@ runs:
             mysql -uroot -p"${{ inputs.test-db-password }}" -e "${GRANT_SQL_LOCAL}" || true
           else
             if type podman > /dev/null 2>&1; then RUNTIME="podman"; else RUNTIME="docker"; fi
-            $RUNTIME exec mysql-test mysql -uroot -p"${{ inputs.test-db-password }}" -e "${GRANT_SQL}" || { $RUNTIME logs mysql-test; exit 1; }
-            $RUNTIME exec mysql-test mysql -uroot -p"${{ inputs.test-db-password }}" -e "${GRANT_SQL_LOCAL}" || true
+            $RUNTIME exec mysql-test mysql -uroot -p"${{ inputs.test-db-password }}" -h127.0.0.1 -e "${GRANT_SQL}" || { $RUNTIME logs mysql-test; exit 1; }
+            $RUNTIME exec mysql-test mysql -uroot -p"${{ inputs.test-db-password }}" -h127.0.0.1 -e "${GRANT_SQL_LOCAL}" || true
           fi
         else
           if [ "${DB_TYPE}" == "local" ]; then
@@ -165,7 +165,7 @@ runs:
             $DB_CLI -uroot -p"${{ inputs.test-db-password }}" -e "${GRANT_SQL}"
           else
             if type podman > /dev/null 2>&1; then RUNTIME="podman"; else RUNTIME="docker"; fi
-            $RUNTIME exec mariadbcontainer mariadb -uroot -p"${{ inputs.test-db-password }}" -e "${GRANT_SQL}"
-            $RUNTIME exec mariadbcontainer mariadb -uroot -p"${{ inputs.test-db-password }}" -e "${GRANT_SQL_LOCAL}" || true
+            $RUNTIME exec mariadbcontainer mariadb -uroot -p"${{ inputs.test-db-password }}" -h127.0.0.1 -e "${GRANT_SQL}"
+            $RUNTIME exec mariadbcontainer mariadb -uroot -p"${{ inputs.test-db-password }}" -h127.0.0.1 -e "${GRANT_SQL_LOCAL}" || true
           fi
         fi
