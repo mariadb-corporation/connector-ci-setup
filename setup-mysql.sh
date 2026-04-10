@@ -77,18 +77,6 @@ else
     CERT_MOUNT="${WORKSPACE}/.github/workflows/certs:/etc/mysql/certs"
 fi
 
-# Copy certs to a temp dir and set ownership to mysql user (uid 999) inside container
-MYSQL_CERT_DIR=$(mktemp -d)
-cp "${WORKSPACE}/.github/workflows/certs/ca.crt" "${MYSQL_CERT_DIR}/"
-cp "${WORKSPACE}/.github/workflows/certs/server.crt" "${MYSQL_CERT_DIR}/"
-cp "${WORKSPACE}/.github/workflows/certs/server.key" "${MYSQL_CERT_DIR}/"
-chmod 644 "${MYSQL_CERT_DIR}/ca.crt" "${MYSQL_CERT_DIR}/server.crt"
-chmod 600 "${MYSQL_CERT_DIR}/server.key"
-sudo chown -R 999:999 "${MYSQL_CERT_DIR}"
-sudo chmod 755 "${MYSQL_CERT_DIR}"
-
-echo "📂 MySQL cert directory contents:"
-ls -la "${MYSQL_CERT_DIR}/"
 
 # Run MySQL container
 echo "Starting MySQL container..."
@@ -99,7 +87,7 @@ ${CONTAINER_RUNTIME} run -d \
     $( [[ -n "${MYSQL_USER}" ]] && echo "-e MYSQL_USER=${MYSQL_USER}" ) \
     $( [[ -n "${MYSQL_PASSWORD}" ]] && echo "-e MYSQL_PASSWORD=${MYSQL_PASSWORD}" ) \
     -p ${MYSQL_PORT}:3306 \
-    -v "${MYSQL_CERT_DIR}:/etc/mysql/certs:ro" \
+    -v "${CERT_MOUNT}:ro" \
     ${IMAGE} \
     --ssl-ca=/etc/mysql/certs/ca.crt \
     --ssl-cert=/etc/mysql/certs/server.crt \
