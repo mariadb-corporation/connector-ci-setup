@@ -157,8 +157,12 @@ runs:
         else
           if [ "${DB_TYPE}" == "local" ]; then
             DB_CLI=$(command -v mariadb > /dev/null 2>&1 && echo "mariadb" || echo "mysql")
+            $DB_CLI -uroot -p"${{ inputs.test-db-password }}" -e "
+              CREATE USER IF NOT EXISTS 'testuser'@'localhost' IDENTIFIED BY '${{ inputs.test-db-password }}';
+              GRANT ALL PRIVILEGES ON \`${{ inputs.test-db-database }}\`.* TO 'testuser'@'localhost';
+              ${GRANT_SQL_LOCAL}
+            " || true
             $DB_CLI -uroot -p"${{ inputs.test-db-password }}" -e "${GRANT_SQL}"
-            $DB_CLI -uroot -p"${{ inputs.test-db-password }}" -e "${GRANT_SQL_LOCAL}" || true
           else
             if type podman > /dev/null 2>&1; then RUNTIME="podman"; else RUNTIME="docker"; fi
             $RUNTIME exec mariadbcontainer mariadb -uroot -p"${{ inputs.test-db-password }}" -e "${GRANT_SQL}"
