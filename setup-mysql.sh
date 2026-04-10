@@ -98,7 +98,7 @@ ${CONTAINER_RUNTIME} run -d \
 
 echo "Waiting for MySQL to be ready..."
 for i in {1..40}; do
-    if ${CONTAINER_RUNTIME} exec -it mysql-test mysqladmin -u root -p"${MYSQL_ROOT_PASSWORD}" > /dev/null 2>&1; then
+    if ${CONTAINER_RUNTIME} exec mysql-test mysqladmin -u root -p"${MYSQL_ROOT_PASSWORD}" --silent; then
         echo "✅ MySQL is ready"
         exit 0
     fi
