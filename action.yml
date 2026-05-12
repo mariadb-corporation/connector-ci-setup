@@ -1,4 +1,4 @@
-name: 'MariaDB Node.js Test Setup'
+name: 'MariaDB Test Setup'
 description: 'Setup MariaDB/MySQL, certificates, and dependencies for testing'
 inputs:
   db-type:
