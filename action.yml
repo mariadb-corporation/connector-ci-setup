@@ -35,6 +35,10 @@ inputs:
   maxscale-tag:
     description: 'MaxScale version tag (e.g., 25.01, latest). If set, MaxScale will be deployed with Enterprise MariaDB'
     required: false
+  install-type:
+    description: 'Installation type: docker (default) or local (native installation)'
+    required: false
+    default: 'docker'
 
 outputs:
   database-type:
@@ -69,9 +73,9 @@ runs:
         chmod +x "$SCRIPT_PATH"
         "$SCRIPT_PATH"
 
-    - name: Setup MariaDB
+    - name: Setup MariaDB (Docker)
       id: mariadb-install
-      if: inputs.db-type != 'mysql'
+      if: inputs.db-type != 'mysql' && inputs.install-type == 'docker'
       uses: rusher/action-setup-mariadb@master
       with:
         tag: ${{ inputs.db-tag }}
@@ -92,6 +96,26 @@ runs:
         conf-script-folder: ${{ github.workspace }}/.github/workflows/certs
         init-script-folder: ${{ inputs.init-script-folder }}
         port: ${{ inputs.maxscale-tag != '' && '3305' || inputs.test-db-port }}
+
+    - name: Setup MariaDB (Local)
+      id: mariadb-local-install
+      if: inputs.db-type != 'mysql' && inputs.install-type == 'local'
+      uses: rusher/action-setup-mariadb@master
+      with:
+        tag: ${{ inputs.db-tag }}
+        local: 'true'
+        root-password: ${{ inputs.test-db-password }}
+        user: testuser
+        password: ${{ inputs.test-db-password }}
+        database: ${{ inputs.test-db-database }}
+        additional-conf: |
+          ${{ inputs.additional-conf }}
+          ${{ '--loose-caching_sha2_password_auto_generate_rsa_keys=1'}}
+          ${{ '--max-connections=500'}}
+        conf-script-folder: ${{ github.workspace }}/.github/workflows/certs
+        init-script-folder: ${{ inputs.init-script-folder }}
+        port: ${{ inputs.test-db-port }}
+
 
     - name: Setup MaxScale
       id: maxscale-setup
@@ -144,7 +168,7 @@ runs:
       run: |
         GRANT_SQL="GRANT ALL PRIVILEGES ON *.* TO 'testuser'@'%' WITH GRANT OPTION; FLUSH PRIVILEGES; "
         GRANT_SQL_LOCAL="GRANT ALL PRIVILEGES ON *.* TO 'testuser'@'localhost' WITH GRANT OPTION; FLUSH PRIVILEGES;"
-        DB_TYPE="${{ steps.mariadb-install.outputs.database-type }}"
+        DB_TYPE="${{ steps.mariadb-install.outputs.database-type || steps.mariadb-local-install.outputs.database-type }}"
         if [ "${{ inputs.db-type }}" == "mysql" ]; then
           if [ "${DB_TYPE}" == "local" ]; then
             mysql -uroot -p"${{ inputs.test-db-password }}" -e "${GRANT_SQL}"
